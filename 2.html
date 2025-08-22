@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+    <head>
+    </head>
+    <body>
+        <h1>Online Timer</h1>
+        <h3 id="currentTime"></h3>
+        <button id="editOrDone" onclick="editOrDone()">Edit</button>
+        <table border="1">
+            <thead id="thead">
+                <tr>
+                    <th>Time</th>
+                    <th>Alert Word</th>
+                </tr>
+            </thead>
+            <tbody id="times">
+
+            </tbody>
+        </table>
+        <button id="addRow" onclick="addRow()" style="display: none;">Add Row</button>
+    </body>
+    <script>
+        let hour = 0;
+        let minute = 0;
+        let index = 0;
+        let edit = false;
+        
+        function AlertTime(time, alertMessage) {
+            this.time = time;
+            this.alertMessage = alertMessage;
+        }
+
+        let times = [new AlertTime("09:00", "Wake up")];
+
+        function updateTable() {
+            document.getElementById("times").innerHTML = "";
+            for (let i = 0; i < times.length; i++) {
+                let newRow = document.createElement("tr");
+                newRow.innerHTML = 
+                    "<td>" + times[i].time + "</td>" +
+                    "<td>" + times[i].alertMessage + "</td>";
+                
+                document.getElementById("times").appendChild(newRow);
+            }
+        }
+
+        updateTable();
+
+        function update() {
+            let final = "Current Time (1000x faster): ";
+            let time = "";
+            minute++;
+            if (minute == 60) {
+                minute = 0;
+                hour++;
+                if (hour == 24) {
+                    hour = 0;
+                }
+            }
+
+            if (hour < 10) {
+                time += "0";
+            }
+            time += hour + ":";
+            if (minute < 10) {
+                time += "0";
+            }
+            time += minute;
+
+            final += time;
+            document.getElementById("currentTime").innerHTML = final;
+
+            if (time == times[index].time) {
+                alert(times[index].alertMessage);
+                index++;
+                if (index == times.length) {
+                    index = 0;
+                }
+            }
+        }
+
+        setInterval(update, 1);
+
+        function editOrDone() {
+            if (!edit) {
+                document.getElementById("editOrDone").innerHTML = "Done";
+                document.getElementById("thead").style.display = "none";
+                document.getElementById("addRow").style.display = "block";
+                edit = true;
+                changeTable();
+            } else {
+                document.getElementById("editOrDone").innerHTML = "Edit";
+                document.getElementById("thead").style.display = "block";
+                document.getElementById("addRow").style.display = "none";
+                edit = false;
+                updateTime();
+                updateTable();
+            }
+        }
+
+        function changeTable() {
+            document.getElementById("times").innerHTML = "";
+            for (let i = 0; i < times.length; i++) {
+                let newRow = document.createElement("tr");
+                let d1 = document.createElement("td");
+                let d2 = document.createElement("td");
+                let d3 = document.createElement("td");
+
+                let time = document.createElement("input");
+                time.type = "time";
+                time.value = times[i].time;
+
+                let alertMessage = document.createElement("input");
+                alertMessage.type = "text";
+                alertMessage.value = times[i].alertMessage;
+
+                let remove = document.createElement("button");
+                remove.addEventListener("click", function() { removeRow(i); });
+                remove.innerHTML = "Remove";
+
+                d1.appendChild(time);
+                d2.appendChild(alertMessage);
+                d3.appendChild(remove);
+
+                newRow.appendChild(d1);
+                newRow.appendChild(d2);
+                newRow.appendChild(d3);
+                
+                document.getElementById("times").appendChild(newRow);
+            }
+        }
+
+        function removeRow(i) {
+            times.splice(i, 1);
+            changeTable();
+        }
+
+        function updateTime() {
+            times = [];
+            let parent = document.getElementById("times");
+            let children = parent.children;
+
+            for (let i = 0; i < children.length; i++) {
+                let row = children[i];
+                times.push(new AlertTime(row.children[0].firstChild.value, row.children[1].firstChild.value));
+            }
+        }
+
+        function addRow() {
+            times.push(new AlertTime("00:00", ""));
+            changeTable();
+        }
+    </script>
+</html>
